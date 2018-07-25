@@ -1,0 +1,7 @@
+This is  a JS app. We can add multiple departments, and employees for each department, and can compare the results in charts tab.
+
+Frameworks Used
+
+angularjs for Js, 
+bootstrap for styling,
+Fusion charts for charts.
