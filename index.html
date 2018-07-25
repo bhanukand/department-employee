@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+	<head>
+		<script type="text/javascript" src="../plugins/angular/angular.js"></script>
+		<script type="text/javascript" src="../plugins/fusion-charts/fusioncharts.js"></script>
+		<script type="text/javascript" src="../plugins/fusion-charts/angular-fusioncharts.js"></script>
+		<script type="text/javascript" src="../plugins/fusion-charts/fusioncharts.charts.js"></script>
+
+		<link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.css" />
+		
+	<style>
+		.row.content {height: 1500px}
+		.sidenav {
+		  background-color: #f1f1f1;
+		  height: 100%;
+		}
+		
+		footer {
+		  background-color: #555;
+		  color: white;
+		  padding: 15px;
+		}
+		
+		@media screen and (max-width: 767px) {
+		  .sidenav {
+			height: auto;
+			padding: 15px;
+		  }
+		  .row.content {height: auto;} 
+		}
+		.p-0 {
+			padding:0;
+		}
+		.pb-10 {
+			padding-bottom:10px;
+		}
+		.dropdown-item {
+			display: block;
+			width: 100%;
+			padding: .25rem 1.5rem;
+			clear: both;
+			font-weight: 400;
+			color: #212529;
+			text-align: inherit;
+			white-space: nowrap;
+			background-color: transparent;
+			border: 0;
+		}
+	</style>
+	</head>
+	<body ng-app="app" class="col-md-12" style="height:658px;">
+		<div ng-controller="mainCtrl" class="container-fluid" >
+			<div class="row content">
+				<div class="col-md-3 sidenav"> 
+					<ul class="nav nav-pills nav-stacked">
+						<li role="button" ng-class="{'active':show.dep}"><a ng-click="showPanel('dep');">Departments</a></li>
+						<li role="button" ng-class="{'active':show.emp}"><a ng-click="showPanel('emp');">Employees</a></li>
+						<li role="button" ng-class="{'active':show.chart}"><a ng-click="showPanel('chart');">Charts</a></li>
+					</ul>
+				</div>
+				<div class="col-md-9" ng-if="show.dep">
+					<h4>List of Departments</h4>
+					<div class="col-md-12 p-0 pb-10">
+						<div class="col-md-5 ">
+							<input type="text" class="form-control" placeholder="Name" ng-model="department.name">
+						</div>
+						<div class="col-md-5">
+								<input type="text" class="form-control" placeholder="Address" ng-model="department.address">
+						</div>
+						<div class="col-md-2">
+							<button class="btn btn-primary" ng-click="addDepartment(department)" ng-disabled="!(department.name && department.name.length>0 && department.address && department.address.length>0)" title="Add Department">Add Department</button>
+						</div>
+					</div>
+					<table class="table table-bordered">
+					  <thead>
+							<tr>
+							  <th scope="col">#</th>
+							  <th scope="col"> Department Name</th>
+							  <th scope="col">Employee Count</th>
+							  <th scope="col">Address</th>
+							</tr>
+					  </thead>
+					  <tbody>
+							<tr ng-repeat="department in departments track by $index">
+							  <th scope="row" ng-bind="$index +1"></th>
+							  <td ng-bind="department.name" ></td>
+							  <td ng-bind="department.empCount"></td>
+							  <td ng-bind="department.address"></td>
+							</tr>
+					  </tbody>
+					</table>
+				</div>
+				<div class="col-md-9" ng-if="show.emp">
+					<h4>List of Employees</h4>
+					<div class="col-md-12 p-0 pb-10">
+						<div class="col-md-3 ">
+							<input type="text" class="form-control" placeholder="Name" ng-model="employee.name">
+						</div>
+						<div class="col-md-3">
+								<input type="text" class="form-control" placeholder="Salary" numberonly="employee.salary" ng-model="employee.salary">
+						</div>
+						<div class="col-md-4">
+							<div class="dropdown">
+							  <button class="btn btn-secondary" style="min-width:100px;" type="button" ng-click="show.depDp=!show.depDp" ng-bind="employee.dep?employee.dep.name:'Select Department'" ng-disabled="!(departments && departments[1]) " > </button>
+							  <div class="dropdown-menu" ng-class="{'show': show.depDp}" >
+								<div class="dropdown-item" ng-repeat ="department in departments" role="button" ng-click="employee.dep = department;show.depDp=false;" ng-bind="department.name"></div>
+							  </div>
+							</div>
+							<!--<input type="text" class="form-control" placeholder="Department" ng-model="employee.dep">-->
+						</div>
+						<div class="col-md-2">
+							<button class="btn btn-primary" ng-click="addEmployee(employee)" ng-disabled="!(employee.name && employee.name.length>0 && employee.salary && employee.salary.length>0)" title="Add Employee">Add Employee</button>
+						</div>
+					</div>
+					<table class="table table-bordered">
+					  <thead>
+							<tr>
+							  <th scope="col">#</th>
+							  <th scope="col">Name</th>
+							  <th scope="col">Department</th>
+							  <th scope="col">Salary</th>
+							</tr>
+					  </thead>
+					  <tbody>
+							<tr ng-repeat="employee in employees track by $index">
+							  <th scope="row" ng-bind="$index +1"></th>
+							  <td ng-bind="employee.name"></td>
+							  <td ng-bind="employee.dep.name"></td>
+							  <td ng-bind="employee.salary | currency"></td>
+							</tr>
+					  </tbody>
+					</table>
+				</div>
+				<div class="col-md-9" ng-if="show.chart" ng-init="loadChart()">
+					<fusioncharts width="600" height="400" type="column2d" datasource="{{chartSource}}"></fusioncharts>
+				</div>
+			</div>
+		</div>
+<!-- main app Js-->
+<script type="text/javascript">
+angular.module('app', ["ng-fusioncharts"]).controller('mainCtrl', ['$scope', function($scope){
+	x=$scope;
+	$scope.show ={'dep':true,'emp':false,'chart':false, 'depDp': true};
+	$scope.employee ={};
+	$scope.departments ={};
+	$scope.employees ={};
+	var depCount=0;
+	var empCount=0;
+	//toggles left panel
+	$scope.showPanel = function(type){
+		angular.forEach($scope.show, function(val,key){ 
+			$scope.show[key] = (key==type) ;
+		});
+	};
+	
+	// add department
+	$scope.addDepartment = function(department){
+		depCount = depCount+1;
+		department['id'] =depCount;
+		department['empCount'] =0;
+		$scope.departments[depCount] = angular.copy(department);
+	}
+	// add Employee
+	$scope.addEmployee = function(employee){
+		empCount = empCount+1;
+		$scope.employees[empCount] = angular.copy(employee);
+		$scope.departments[employee.dep.id]['empCount'] =$scope.departments[employee.dep.id]['empCount']+1;
+	};
+	
+	$scope.loadChart = function() {
+		$scope.chartSource = {
+				chart: {
+						caption: "Oracle Corporation",
+						subCaption: "Department-Employee Statistics"
+					},
+				data:[] 
+			};
+			
+		angular.forEach($scope.departments, function(dep){
+				$scope.chartSource.data.push({"label":dep.name,"value": dep.empCount});
+		});
+	};
+	
+}]).directive('numberonly',function(){
+	return {
+		restrict:'A',
+		require:'ngModel',
+		scope:{
+			'numberonly' :'='
+		},
+		link: function(scope,ele,attrs){
+				var reg = new RegExp('^[0-9]*$');
+			scope.$watch('numberonly', function(newVal,oldVal){
+				if(!reg.test(newVal)){
+						scope.numberonly = 0;
+				}
+				
+			})
+		}
+	}
+});
+</script>
+	</body>
+</html>
