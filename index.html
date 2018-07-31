@@ -74,18 +74,34 @@
 					<table class="table table-bordered">
 					  <thead>
 							<tr>
-							  <th scope="col">#</th>
-							  <th scope="col"> Department Name</th>
-							  <th scope="col">Employee Count</th>
-							  <th scope="col">Address</th>
+							  <th class="text-center" scope="col">#</th>
+							  <th class="text-center" scope="col"> Department Name</th>
+							  <th class="text-center" scope="col">Employee Count</th>
+							  <th class="text-center" scope="col">Address</th>
+							  <th class="text-center" scope="col">Actions</th>
 							</tr>
 					  </thead>
 					  <tbody>
 							<tr ng-repeat="department in departments track by $index">
-							  <th scope="row" ng-bind="$index +1"></th>
-							  <td ng-bind="department.name" ></td>
-							  <td ng-bind="department.empCount"></td>
-							  <td ng-bind="department.address"></td>
+							  <th class="text-center" scope="row" ng-bind="$index+1"></th>
+							  <!--show-->
+							  <td class="text-center" ng-bind="department.name" ng-show="!department.isEdit"></td>
+							  <td class="text-center" ng-bind="department.empCount" ng-show="!department.isEdit"></td>
+							  <td class="text-center" ng-bind="department.address" ng-show="!department.isEdit"></td>
+							  <!--Edit-->
+							  <td class="text-center" ng-show="department.isEdit">
+								<input type="text" ng-model="department.name" />
+							  </td>
+							  <td class="text-center" ng-show="department.isEdit" ng-bind="department.empCount">
+							  </td>
+							  <td class="text-center" ng-show="department.isEdit">
+								<input type="text" ng-model="department.address" />
+							  </td>
+							  <!--Actions-->
+							  <td class="text-center">
+								<button class="btn" ng-class="{'btn-warning':!department.isEdit, 'btn-success':department.isEdit}" ng-click="department.isEdit = !department.isEdit" ng-bind="department.isEdit?'Update':'Edit'"></button>
+								<button class="btn btn-danger" ng-click="removeDepartment(department.id)">Delete</button>
+							  </td>
 							</tr>
 					  </tbody>
 					</table>
@@ -101,7 +117,7 @@
 						</div>
 						<div class="col-md-4">
 							<div class="dropdown">
-							  <button class="btn btn-secondary" style="min-width:100px;" type="button" ng-click="show.depDp=!show.depDp" ng-bind="employee.dep?employee.dep.name:'Select Department'" ng-disabled="!(departments && departments[1]) " > </button>
+							  <button class="btn btn-secondary" style="min-width:100px;" type="button" ng-click="show.depDp=!show.depDp" ng-bind="employee.dep?employee.dep.name:'Select Department'" > </button>
 							  <div class="dropdown-menu" ng-class="{'show': show.depDp}" >
 								<div class="dropdown-item" ng-repeat ="department in departments" role="button" ng-click="employee.dep = department;show.depDp=false;" ng-bind="department.name"></div>
 							  </div>
@@ -109,24 +125,46 @@
 							<!--<input type="text" class="form-control" placeholder="Department" ng-model="employee.dep">-->
 						</div>
 						<div class="col-md-2">
-							<button class="btn btn-primary" ng-click="addEmployee(employee)" ng-disabled="!(employee.name && employee.name.length>0 && employee.salary && employee.salary.length>0)" title="Add Employee">Add Employee</button>
+							<button class="btn btn-primary" ng-click="addEmployee(employee)" ng-disabled="!(employee.name && employee.name.length>0 && employee.salary && employee.salary.length>0 && employee.dep && employee.dep.name)" title="Add Employee">Add Employee</button>
 						</div>
 					</div>
 					<table class="table table-bordered">
 					  <thead>
 							<tr>
-							  <th scope="col">#</th>
-							  <th scope="col">Name</th>
-							  <th scope="col">Department</th>
-							  <th scope="col">Salary</th>
+							  <th class="text-center" scope="col">#</th>
+							  <th class="text-center" scope="col">Name</th>
+							  <th class="text-center" scope="col">Department</th>
+							  <th class="text-center" scope="col">Salary</th>
+							  <th class="text-center" scope="col">Actions</th>
 							</tr>
 					  </thead>
 					  <tbody>
 							<tr ng-repeat="employee in employees track by $index">
-							  <th scope="row" ng-bind="$index +1"></th>
-							  <td ng-bind="employee.name"></td>
-							  <td ng-bind="employee.dep.name"></td>
-							  <td ng-bind="employee.salary | currency"></td>
+							  <!-- show -->
+							  <th class="text-center" scope="row" ng-bind="employee.id"></th>
+							  <td class="text-center" ng-bind="employee.name" ng-show="!employee.isEdit"></td>
+							  <td class="text-center" ng-bind="employee.dep.name" ng-show="!employee.isEdit"></td>
+							  <td class="text-center" ng-bind="employee.salary | currency" ng-show="!employee.isEdit"></td>
+							   <!--Edit-->
+							  <td class="text-center" ng-show="employee.isEdit">
+								<input type="text" ng-model="employee.name" />
+							  </td>
+							  <td class="text-center" ng-show="employee.isEdit">
+								<div class="dropdown">
+									  <button class="btn btn-secondary" style="min-width:100px;" type="button" ng-click="employee.depDp=!employee.depDp" ng-bind="employee.dep?employee.dep.name:'Select Department'" > </button>
+									  <div class="dropdown-menu" ng-class="{'show': employee.depDp}" >
+										<div class="dropdown-item" ng-repeat ="department in departments" role="button" ng-click="employee.dep = department;employee.depDp=false;" ng-bind="department.name"></div>
+									  </div>
+								</div>
+							  </td>
+							  <td class="text-center" ng-show="employee.isEdit">
+								<input type="text" ng-model="employee.salary" />
+							  </td>
+							  <!--Actions-->
+							  <td class="text-center">
+								<button class="btn" ng-class="{'btn-warning':!employee.isEdit, 'btn-success':employee.isEdit}" ng-click="updateEmployee(employee)" ng-bind="employee.isEdit?'Update':'Edit'"></button>
+								<button class="btn btn-danger" ng-click="removeEmployee(employee.id)">Delete</button>
+							  </td>
 							</tr>
 					  </tbody>
 					</table>
@@ -160,13 +198,34 @@ angular.module('app', ["ng-fusioncharts"]).controller('mainCtrl', ['$scope', fun
 		department['empCount'] =0;
 		$scope.departments[depCount] = angular.copy(department);
 	}
+	//remove department
+	$scope.removeDepartment = function(id){
+		delete $scope.departments[id];
+	}
 	// add Employee
 	$scope.addEmployee = function(employee){
 		empCount = empCount+1;
+		employee['id'] =empCount;
 		$scope.employees[empCount] = angular.copy(employee);
 		$scope.departments[employee.dep.id]['empCount'] =$scope.departments[employee.dep.id]['empCount']+1;
 	};
-	
+	// Edit Employee
+	$scope.updateEmployee = function(employee){
+		if(employee.isEdit){
+			$scope.departments[employee.dep.id]['empCount'] =$scope.departments[employee.dep.id]['empCount']+1;
+		}else {
+			$scope.departments[employee.dep.id]['empCount'] =$scope.departments[employee.dep.id]['empCount']-1;
+		}
+		employee.isEdit = !employee.isEdit;
+		$scope.employees[employee.id] = angular.copy(employee);
+	};
+	//remove Employee
+	$scope.removeEmployee = function(id){
+		// decrement department count
+		if($scope.departments[$scope.employees[id]['dep']['id']]['empCount']>0) $scope.departments[$scope.employees[id]['dep']['id']]['empCount'] =$scope.departments[$scope.employees[id]['dep']['id']]['empCount']-1;
+		delete $scope.employees[id];
+	}
+	//loading Chart
 	$scope.loadChart = function() {
 		$scope.chartSource = {
 				chart: {
